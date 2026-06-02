@@ -3,7 +3,7 @@ from __future__ import annotations
 import argparse
 from pathlib import Path
 
-from diff_parser import format_diff_summary, load_diff_file, parse_unified_diff
+from diff_parser import format_diff_summary, load_diff_file, parse_unified_diff, review_unified_diff
 from review_engine import analyze_file, analyze_source, build_demo_source, format_report
 
 
@@ -25,6 +25,19 @@ def main() -> None:
         diff_text = load_diff_file(Path(args.diff_file))
         file_patches = parse_unified_diff(diff_text)
         print(format_diff_summary(file_patches))
+        findings = review_unified_diff(diff_text)
+        if findings:
+            print("")
+            print("Patch review findings:")
+            for finding in findings:
+                location = f":{finding.line}" if finding.line is not None else ""
+                print(f"- [{finding.severity}] {finding.category} ({finding.file_path}{location})")
+                print(f"  {finding.message}")
+                if finding.suggestion:
+                    print(f"  Suggestion: {finding.suggestion}")
+        else:
+            print("")
+            print("Patch review findings: none")
         return
     elif args.path:
         report = analyze_file(Path(args.path))
