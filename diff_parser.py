@@ -110,7 +110,10 @@ def review_unified_diff(diff_text: str) -> list[DiffReviewFinding]:
     for file_patch in file_patches:
         file_path = file_patch.new_path or file_patch.old_path
         _review_patch_lines(file_path, file_patch, findings)
-        _review_new_file_source(file_patch, findings)
+        if _is_new_file(file_patch):
+            _review_new_file_source(file_patch, findings)
+        else:
+            _review_modified_file_source(file_patch, findings)
 
     return findings
 
@@ -178,6 +181,58 @@ def _reconstruct_new_file_source(file_patch: DiffFilePatch) -> str | None:
 
 def _is_new_file(file_patch: DiffFilePatch) -> bool:
     return file_patch.old_path == "/dev/null" or file_patch.new_path == "/dev/null"
+
+
+def _reconstruct_modified_file_source(file_patch: DiffFilePatch) -> str | None:
+    """Reconstruct the new version of a modified file from its hunks."""
+    if _is_new_file(file_patch):
+        return None
+
+    source_lines: list[str] = []
+    for hunk in file_patch.hunks:
+        for line in hunk.lines:
+            # Context lines (start with space) or added lines (start with +) go into new file
+            if line.startswith(" "):
+                source_lines.append(line[1:])
+            elif line.startswith("+") and not line.startswith("+++"):
+                source_lines.append(line[1:])
+            # Removed lines (start with -) are skipped; they're not in the new file
+    
+    if not source_lines:
+        return None
+    return "\n".join(source_lines)
+
+
+def _review_modified_file_source(file_patch: DiffFilePatch, findings: list[DiffReviewFinding]) -> None:
+    """Run AST review on the reconstructed source of a modified file."""
+    if _is_new_file(file_patch):
+        return
+
+    source = _reconstruct_modified_file_source(file_patch)
+    if source is None:
+        return
+
+    try:
+        from review_engine import analyze_source
+    except ImportError:
+        return
+
+    try:
+        report = analyze_source(source, target_name=file_patch.new_path or file_patch.old_path)
+    except SyntaxError:
+        return
+
+    for finding in report.findings:
+        findings.append(
+            DiffReviewFinding(
+                file_path=file_patch.new_path or file_patch.old_path,
+                category=finding.category,
+                severity=finding.severity,
+                message=finding.message,
+                line=finding.line,
+                suggestion=finding.suggestion,
+            )
+        )
 
 
 def _flush_hunk_findings(file_path: str, hunk_lines: list[str], findings: list[DiffReviewFinding]) -> None:
