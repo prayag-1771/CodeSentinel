@@ -1,4 +1,5 @@
 diff_parser
+github_integration
 main
 review_engine
 review_types

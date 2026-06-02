@@ -1,5 +1,6 @@
 README.md
 diff_parser.py
+github_integration.py
 main.py
 pyproject.toml
 review_engine.py
@@ -10,3 +11,4 @@ ai_agent.egg-info/dependency_links.txt
 ai_agent.egg-info/entry_points.txt
 ai_agent.egg-info/requires.txt
 ai_agent.egg-info/top_level.txt
+tests/test_review.py

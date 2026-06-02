@@ -185,10 +185,14 @@ def _find_duplicate_logic(tree: ast.AST, source: str) -> list[ReviewFinding]:
     bodies: defaultdict[str, list[ast.AST]] = defaultdict(list)
     for node in ast.walk(tree):
         if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)):
-            segment = ast.get_source_segment(source, node)
-            if not segment:
+            body_segments = []
+            for stmt in node.body:
+                seg = ast.get_source_segment(source, stmt)
+                if seg:
+                    body_segments.append(seg)
+            if not body_segments:
                 continue
-            normalized = "\n".join(line.strip() for line in segment.splitlines() if line.strip())
+            normalized = "\n".join(line.strip() for seg in body_segments for line in seg.splitlines() if line.strip())
             bodies[normalized].append(node)
 
     findings: list[ReviewFinding] = []
