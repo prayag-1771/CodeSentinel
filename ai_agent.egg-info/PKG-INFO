@@ -1,3 +1,17 @@
+Metadata-Version: 2.4
+Name: ai-agent
+Version: 0.1.0
+Summary: AI code review prototype for catching AI-generated code smells
+Requires-Python: >=3.11
+Description-Content-Type: text/markdown
+Requires-Dist: ipykernel>=7.2.0
+Requires-Dist: langchain>=0.1.0
+Requires-Dist: langchain-community>=0.0.20
+Requires-Dist: langchain-google-genai>=1.0.1
+Requires-Dist: langchain-groq>=0.0.1
+Requires-Dist: langchain-openai>=0.0.6
+Requires-Dist: python-dotenv>=1.2.2
+
 AI Agent Review Prototype
 =========================
 
