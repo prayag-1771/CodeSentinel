@@ -22,4 +22,4 @@ dependencies = [
 ai-agent = "main:main"
 
 [tool.setuptools]
-py-modules = ["main", "review_engine", "review_types"]
+py-modules = ["main", "review_engine", "review_types", "diff_parser"]

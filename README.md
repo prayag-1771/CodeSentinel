@@ -16,6 +16,7 @@ UV workflow
 1. `uv sync` installs the project from `pyproject.toml` and `uv.lock`.
 2. `uv run ai-agent --demo` runs the packaged CLI.
 3. `uv run ai-agent path/to/file.py` reviews a real file.
+4. `uv run ai-agent --diff-file path/to/diff.patch` inspects PR-style diff input.
 
 What the MVP checks
 -------------------
@@ -40,6 +41,12 @@ Run the demo sample with `uv`:
 
 ```bash
 uv run ai-agent --demo
+```
+
+Inspect a diff file:
+
+```bash
+uv run ai-agent --diff-file path/to/diff.patch
 ```
 
 Teaching note
